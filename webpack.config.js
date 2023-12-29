@@ -6,7 +6,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 const config = {
   entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'public'), // замените 'dist' на 'public'
+    filename: 'bundle.js', // добавьте это свойство, если оно еще не определено
   },
   devServer: {
     open: true,
@@ -20,8 +21,11 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.(js|jsx)$/i,
-        loader: 'babel-loader',
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+        },
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
@@ -38,7 +42,7 @@ const config = {
             loader: 'sass-loader',
             options: {
               sassOptions: {
-                quietDeps: true, // Добавляем параметр quietDeps для скрытия предупреждений Sass
+                quietDeps: true,
               },
             },
           },
