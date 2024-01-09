@@ -1,24 +1,26 @@
 import * as Yup from 'yup';
 import onChange from 'on-change';
 import { subscribe, render } from './view.js';
+import i18next from 'i18next';
 
 const state = {
   form: {
     isError: null,
     message: '',
   },
+  feeds: [],
 };
+
+const watchedState = onChange(state, render);
 
 const validateUrl = async (url) => {
   try {
-    await Yup.string().required().url().validate(url);
+    await Yup.string().trim().required().url().notOneOf(watchedState.feeds).validate(url);
     return true;
   } catch {
     return false;
   }
 };
-
-const watchedState = onChange(state, render);
 
 export const onSubmit = async (e) => {
   e.preventDefault();
@@ -29,6 +31,7 @@ export const onSubmit = async (e) => {
   if (isValid) {
     watchedState.form.isError = false;
     watchedState.form.message = 'RSS успешно загружен';
+    watchedState.feeds.push(url);
     // отправляем запрос на url
   } else {
     watchedState.form.isError = true;

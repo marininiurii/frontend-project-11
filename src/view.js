@@ -15,11 +15,12 @@ export const render = (path, newValue) => {
         input.classList.add('is-invalid');
         formMessageNode.classList.remove('text-success');
         formMessageNode.classList.add('text-danger');
-      } else if (!newValue) {
+      } else {
         input.classList.remove('is-invalid');
         formMessageNode.classList.remove('text-danger');
         formMessageNode.classList.add('text-success');
         form.reset();
+        input.focus();
       }
       break;
     case 'form.message':
