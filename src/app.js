@@ -1,31 +1,41 @@
 import * as Yup from 'yup';
 import onChange from 'on-change';
+import { subscribe, render } from './view.js';
 
 const state = {
-  value: '',
+  form: {
+    isError: null,
+    message: '',
+  },
 };
 
-const isValidate = (url) => {
-  const schema = Yup.object().shape({
-    url: Yup.string()
-      .matches(/^(http|https):\/\/[^ "]+$/)
-      .required(),
-  });
-
-  schema
-    .validate({ url: `${url}` })
-    .then((valid) => console.log(valid))
-    .catch((error) => console.log(error));
+const validateUrl = async (url) => {
+  try {
+    await Yup.string().required().url().validate(url);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
-watchedState = onChange(state, (path, value, previousValue) => {});
+const watchedState = onChange(state, render);
 
-export default () => {
-  const form = document.querySelector('form');
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const input = document.querySelector('input');
-    const inputValue = input.value;
-    isValidate(inputValue);
-  });
+export const onSubmit = async (e) => {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  console.log(formData.get('url'));
+  const url = formData.get('url');
+  const isValid = await validateUrl(url);
+  if (isValid) {
+    watchedState.form.isError = false;
+    watchedState.form.message = 'RSS успешно загружен';
+    // отправляем запрос на url
+  } else {
+    watchedState.form.isError = true;
+    watchedState.form.message = 'Ссылка должна быть валидным URL';
+  }
+};
+
+export const app = () => {
+  subscribe();
 };
